@@ -1,16 +1,13 @@
-import argparse
 import zmq
-import Broker
+import app
 
-parser = argparse.ArgumentParser(description='zeromq server/client')
-parser.add_argument('--bar')
-args = parser.parse_args()
-
-if args.bar:
-    # client
+def publishMsg():
     context = zmq.Context()
     socket = context.socket(zmq.REQ)
-    socket.connect('tcp://127.0.0.1:5556'.format(host))
-    socket.send(args.bar)
+    socket.connect('tcp://127.0.0.1:5555')
+    print "Published message"
+    socket.send("test")
     msg = socket.recv()
-    print msg
+    print "received ack",msg
+
+publishMsg()

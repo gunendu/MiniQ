@@ -1,3 +1,4 @@
+from flask import Flask,request,jsonify
 import argparse
 import zmq
 import leveldb
@@ -7,20 +8,19 @@ import json
 from threading import Thread
 from Queue import Queue
 
-context = zmq.Context()
-socket = context.socket(zmq.REP)
-db = None
-queue = Queue(1000)
+def runBroker():
+    while True:
+        context = zmq.Context()
+        socket = context.socket(zmq.REP)
+        queue = Queue(1000)
+        socket.bind('tcp://127.0.0.1:5555')
+        db = leveldb.LevelDB("./db", create_if_missing=True)
+        msg = socket.recv()
+        print msg
 
-def createBroker():
-    socket.bind('tcp://127.0.0.1:5556')
-    global db
-    db = leveldb.LevelDB("./db", create_if_missing=True)
-
-def produceMsg():
+def produceMsg(msg):
     global queue
     while True:
-        msg = socket.recv()
         msgId = randint(0,1000)
         msgObj = {}
         msgObj['msgId'] = msgId
@@ -36,6 +36,5 @@ def consumeMsg():
         queue.task_done()
         socket.send(str(msgObj['msgId']))
 
-
-createBroker()
-produceMsg()
+if __name__ == "__main__":
+    Broker.runBroker()
