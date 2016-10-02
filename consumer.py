@@ -1,13 +1,16 @@
 import zmq
-import app
+import json
+import miniqservice
 
-def consumer():
-    context = zmq.Context()
-    socket = context.socket(zmq.REP)
-    socket.bind('tcp://127.0.0.1:5556')
-    while True:
-        msg = socket.recv()
-        print "consumer received message",msg
-        socket.send("ack from consumer")
+producerSocket = miniqservice.producerConnect("127.0.0.1")
 
-consumer()
+ack = miniqservice.producerSend(producerSocket,"Droplet Test!")
+
+print "message ack",ack
+
+consumerSocket = miniqservice.consumerConnect("127.0.0.1")
+
+while True:
+    msg = miniqservice.consumerReceive(consumerSocket)
+    print "Message Received",msg
+    miniqservice.notifyMinq(consumerSocket,msg['msgId'])
