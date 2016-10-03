@@ -7,20 +7,46 @@ def producerConnect(host):
     return socket
 
 def producerSend(socket,message):
-    socket.send(message)
-    msgId = socket.recv()
-    return msgId
+    for i in range(6):
+        socket.send(message)
+        msgId = socket.recv()
+        print "consumer ack",msgId
 
-def consumerConnect(host):
+def createQueue(socket,name):
+    msg = {}
+    msg['type'] = "CREATE_QUEUE"
+    msg['payload'] = {"name":name}
+    socket.send(str(msg))
+
+def createDb(socket):
+    msg = {}
+    msg['type'] = "CREATE_DB"
+    msg['payload'] = {}
+    socket.send(str(msg))
+
+def startProducer(socket):
+    msg = {}
+    msg['type'] = "PRODUCE_MSG"
+    msg['payload'] = {}
+    socket.send(str(msg))
+
+def consumerConnect(host,port_sub):
     context = zmq.Context()
-    socket = context.socket(zmq.REP)
-    socket.bind('tcp://{}:5556'.format(host))
-    return socket
+    socket_sub = context.socket(zmq.REQ)
+    socket_sub.connect ("tcp://localhost:%s" % port_sub)
+    return socket_sub
 
-def consumerReceive(socket):
-    msg = socket.recv()
-    msg = eval(msg)
-    return msg
+def connectCommandServer(host):
+    context = zmq.Context()
+    socket_sub = context.socket(zmq.PAIR)
+    socket_sub.connect('tcp://{}:5557'.format(host))
+    return socket_sub
+
+def startConsumer(socket):
+    msg = {}
+    msg['type'] = "CONSUME"
+    msg['payload'] = {}
+    socket.send(str(msg))
 
 def notifyMinq(socket,msgId):
     socket.send(msgId)

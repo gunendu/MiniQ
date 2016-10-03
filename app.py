@@ -22,21 +22,19 @@ def runBroker():
     socket.bind('tcp://127.0.0.1:5555')
     while True:
         msg = socket.recv()
-        if "ack" in msg:
-            socket.send("ack")
-            t = threading.Thread(target=deleteMessage(msg))
-            t.start()
-        else:
-            msgId = randint(0,1000)
-            msgObj = {}
-            msgObj['msgId'] = msgId
-            msgObj['message'] = msg
-            queue.put(msgObj)
-            db.Put(str(msgId),json.dumps(msgObj))
-            socket.send(str(msgId))
+        enque(msg)
+
+def enque(msg):
+    msgId = str(randint(0,1000))
+    msgObj = {}
+    msgObj['msgId'] = msgId
+    msgObj['message'] = msg
+    queue.put(msgObj)
+    db.Put(msgId,json.dumps(msgObj))
+    socket.send(msgId)
 
 def deleteMessage(msgId):
-    msg = json.loads(db.Get(str(msgId.split("_")[1])))
+    msg = json.loads(db.Get(msgId.split("_")[1]))
     db.Delete(str(msg['msgId']))
 
 def consumeMsg():
@@ -46,8 +44,10 @@ def consumeMsg():
     while True:
         msgObj = queue.get()
         queue.task_done()
-        socket.send("ack" +"_"+ str(msgObj['msgId']))
-        msg = socket.recv()
+        print "consumer",msgObj,type(msgObj)
+        socket.send_string(str(msgObj))
+        msgId = socket.recv()
+        print "ack consumer",msgId
 
 if __name__ == "__main__":
     t = threading.Thread(target=consumeMsg)
