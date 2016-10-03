@@ -33,7 +33,6 @@ def consumeMessage():
     context = zmq.Context()
     socket = context.socket(zmq.REP)
     socket.bind('tcp://127.0.0.1:5556')
-    topic = 9
     while True:
         msg = socket.recv()
         msgObj = queue.get()
@@ -46,7 +45,7 @@ class commandServer(Thread):
         Thread.__init__ (self)
 
     def run(self):
-        global queue,db
+        global queue
         context = zmq.Context()
         socket = context.socket(zmq.PAIR)
         socket.bind('tcp://127.0.0.1:5557')
@@ -73,15 +72,13 @@ class commandServer(Thread):
             if msg['type'] is "CREATE_QUEUE":
                 queue = Queue.Queue()
 
-            if msg['type'] is "CREATE_DB":
-                db = leveldb.LevelDB("./db", create_if_missing=True)
-
             if msg['type'] is "RELOAD_MSGS":
                 for key,val in db:
-                    print key,val    
+                    print key,val
 
 if __name__ == '__main__':
 
+    db = leveldb.LevelDB("./db", create_if_missing=True)
     cserver = commandServer()
     cserver.start()
     cserver.join()

@@ -9,12 +9,13 @@ miniqservice.startConsumer(commandSocket)
 
 class ConsumerThread(Thread):
 
-    def __init__(self,port_sub):
+    def __init__(self,host,port_sub):
         Thread.__init__(self)
+        self.host = host
         self.port_sub = port_sub
 
     def run(self):
-        socket_sub = miniqservice.consumerConnect("127.0.0.1",self.port_sub)
+        socket_sub = miniqservice.consumerConnect(self.host,self.port_sub)
         while True:
             socket_sub.send("pop a message from queue")
             string = socket_sub.recv()
@@ -30,8 +31,7 @@ if __name__ == '__main__':
     cthreads = []
 
     for i in range(0,3):
-        print "consumer" + str(i)
-        consumer = ConsumerThread("5556")
+        consumer = ConsumerThread("127.0.0.1","5556")
         consumer.start()
         cthreads.append(consumer)
 

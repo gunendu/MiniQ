@@ -6,7 +6,6 @@ import sys
 
 commandSocket = miniqservice.connectCommandServer("127.0.0.1")
 miniqservice.createQueue(commandSocket,"STZ")
-miniqservice.createDb(commandSocket)
 miniqservice.startProducer(commandSocket)
 
 class ProducerThread(Thread):
