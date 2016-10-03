@@ -76,6 +76,10 @@ class commandServer(Thread):
             if msg['type'] is "CREATE_DB":
                 db = leveldb.LevelDB("./db", create_if_missing=True)
 
+            if msg['type'] is "RELOAD_MSGS":
+                for key,val in db:
+                    print key,val    
+
 if __name__ == '__main__':
 
     cserver = commandServer()

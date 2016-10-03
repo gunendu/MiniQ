@@ -16,7 +16,7 @@ class ConsumerThread(Thread):
     def run(self):
         socket_sub = miniqservice.consumerConnect("127.0.0.1",self.port_sub)
         while True:
-            socket_sub.send("test")
+            socket_sub.send("pop a message from queue")
             string = socket_sub.recv()
             string = eval(string)
             print string['msgId']

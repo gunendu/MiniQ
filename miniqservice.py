@@ -48,5 +48,8 @@ def startConsumer(socket):
     msg['payload'] = {}
     socket.send(str(msg))
 
-def notifyMinq(socket,msgId):
-    socket.send(msgId)
+def reloadMessages(socket):
+    msg = {}
+    msg['type'] = "RELOAD_MSGS"
+    msg['payload'] = {}
+    socket.send(str(msg))
